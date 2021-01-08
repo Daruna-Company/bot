@@ -151,8 +151,7 @@ class Bot:
                     elif text == "назад" and act == "profile":
                         self.send_msg("Чем могу помочь?", author, "main")
                         user.getProfile(author)["act"] = "main"
-                    else:
-                        break
+
 
 if __name__ == "__main__":
     x = Bot(info)
