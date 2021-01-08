@@ -10,3 +10,17 @@ def newUser(id):
     print(f"имя - {profile['name']}")
     print(f"пароль - {profile['password']}")
     print("============================")
+
+def cheangeLogin(id, old_login, new_login):
+    print("\n============================")
+    print(f"пользователь {id} сменил логин")
+    print(f"старый логин - {old_login}")
+    print(f"новый логин - {new_login}")
+    print("============================")
+
+def cheangePassword(id, old_pass, new_login):
+    print("\n============================")
+    print(f"пользователь {id} сменил пароль")
+    print(f"старый пароль - {old_pass}")
+    print(f"новый пароль - {new_login}")
+    print("============================")

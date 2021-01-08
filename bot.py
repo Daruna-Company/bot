@@ -18,8 +18,10 @@ class Bot:
         self.main.add_button("Профиль")
 
         self.profile = VkKeyboard(one_time=True)
-        self.profile.add_button("изменить логин")
-        self.profile.add_button("изменить пароль")
+        self.profile.add_button("Изменить логин")
+        self.profile.add_button("Изменить пароль")
+        self.profile.add_line()
+        self.profile.add_button("Назад", color=VkKeyboardColor.NEGATIVE)
 
         self.token = i["token"]
         self.group_id = i["group_id"]
@@ -89,7 +91,7 @@ class Bot:
                             self.send_msg("Введённый вами логин слишком длинный(необходимо не больше 30 символов),\
  попробуйте другой", author, None)
                         else:
-                            user.editProfile(author, "name", text)
+                            user.editProfile(author, "name", ltext)
                             db.data["logins"].append(ltext)
                             self.send_msg("Введите пароль для вашего аккаунта", author, None)
                             user.getProfile(author)["act"] = "registr(password)"
@@ -102,19 +104,53 @@ class Bot:
                         elif test == -3:
                             self.send_msg("Введённый вами пароль не содержит строчные буквы, попробуйте другой", author, None)
                         elif test == -4:
-                            self.send_msg("Введённый вами пароль не содержит цыфры, попробуйте другой", author, None)
+                            self.send_msg("Введённый вами пароль не содержит цифры, попробуйте другой", author, None)
                         elif test == -5:
                             self.send_msg("Введённый вами пароль содержит пробелы, попробуйте другой", author, None)
                         elif test == 1:
-                            user.editProfile(author, "password", text)
+                            user.editProfile(author, "password", ltext)
                             self.send_msg("Регистрация завершена", author, "main")
                             logs.newUser(author)
                             user.getProfile(author)["act"] = "main"
+                    elif act == "cheangeLogin":
+                        if ltext == user.getProfile(author)["name"]:
+                            self.send_msg("Введенный вами логин совпадает со старым, придумаете другой", author, None)
+                        else:
+                            old_login = user.getProfile(author)["name"]
+                            self.send_msg("Логин изменён", author, "profile")
+                            db.data["logins"].remove(old_login)
+                            user.getProfile(author)["name"] = ltext
+                            logs.cheangeLogin(user.getProfile(author)["id"], old_login, ltext)
+                            user.getProfile(author)["act"] = "profile"
+                    elif act == "cheangePassword":
+                        if ltext == user.getProfile(author)["password"]:
+                            self.send_msg("Введенный вами пароль совпадает со старым, придумаете другой", author, None)
+                        else:
+                            old_pass = user.getProfile(author)["password"]
+                            self.send_msg("Пароль изменён", author, "profile")
+                            user.getProfile(author)["password"] = ltext
+                            logs.cheangeLogin(user.getProfile(author)["id"], old_pass, ltext)
+                            user.getProfile(author)["act"] = "profile"
+                    elif act == "getOldPassword":
+                        if ltext != user.getProfile(author)["password"]:
+                            self.send_msg("Введенный вами пароль не совпадает с нынешним, попробуйте ещё раз", author, None)
+                        else:
+                            self.send_msg("Введите новый пароль", author, None)
+                            user.getProfile(author)["act"] = "cheangePassword"
                     elif text == "профиль" and act == "main":
                         people = user.getProfile(author)
                         self.send_msg(f"Ваш аккаунт:\nid - {people['id']}\nлогин - {people['name']}\
 \nроль - {people['role']}", author, "profile")
-                    #elif text == ""
+                        user.getProfile(author)["act"] = "profile"
+                    elif text == "изменить логин" and act == "profile":
+                        self.send_msg("Введите новый логин", author, None)
+                        user.getProfile(author)["act"] = "cheangeLogin"
+                    elif text == "изменить пароль" and act == "profile":
+                        self.send_msg("Чтобы установить новый пароль введите нынешний", author, None)
+                        user.getProfile(author)["act"] = "getOldPassword"
+                    elif text == "назад" and act == "profile":
+                        self.send_msg("Чем могу помочь?", author, "main")
+                        user.getProfile(author)["act"] = "main"
                     else:
                         break
 
