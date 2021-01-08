@@ -20,7 +20,7 @@ class User:
                 "discord": 0
             },
             "orders": [],
-            "role": "",
+            "role": "простой пользователь",
             "act": "none"
         })
         self.numOfUsers += 1

@@ -64,14 +64,14 @@ class Bot:
 
                 act = user.getProfile(author)["act"]
 
-                if text.lower() == "зарегистрироваться":
+                if text == "зарегистрироваться":
                     if user.inDb(author):
                         self.send_msg("Вы уже зарегистрированны", author, "main")
                     else:
-                        self.send_msg("Введите имя для вашего аккаунта", author, None)
-                        user.getProfile(author)["act"] = "registr(name)"
+                        self.send_msg("Введите логин для вашего аккаунта", author, None)
+                        user.getProfile(author)["act"] = "registr(login)"
                 else:
-                    if act == "registr(name)":
+                    if act == "registr(login)":
                         user.editProfile(author, "name", text)
                         self.send_msg("Введите пароль для вашего аккаунта", author, None)
                         user.getProfile(author)["act"] = "registr(password)"
@@ -80,6 +80,10 @@ class Bot:
                         self.send_msg("Регистрация завершена", author, "main")
                         logs.newUser(author)
                         user.getProfile(author)["act"] = "main"
+                    elif text == "профиль" and act == "main":
+                        people = user.getProfile(author)
+                        self.send_msg(f"Ваш аккаунт:\nid - {people['id']}\nлогин - {people['name']}\
+\nроль - {people['role']}", author, "main")
                     else:
                         break
 
