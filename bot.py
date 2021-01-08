@@ -82,8 +82,8 @@ class Bot:
                     if act == "registr(login)":
                         if ltext in db.data["logins"]:
                             self.send_msg("Введённый вами логин уже используется, попробуйте другой", author, None)
-                        elif len(ltext) <= 7:
-                            self.send_msg("Введённый вами логин слишком короткий(необходимо хотя бы 7 символов),\
+                        elif len(ltext) < 3:
+                            self.send_msg("Введённый вами логин слишком короткий(необходимо хотя бы 3 символов),\
  попробуйте другой", author, None)
                         elif len(ltext) >= 30:
                             self.send_msg("Введённый вами логин слишком длинный(необходимо не больше 30 символов),\
@@ -94,10 +94,22 @@ class Bot:
                             self.send_msg("Введите пароль для вашего аккаунта", author, None)
                             user.getProfile(author)["act"] = "registr(password)"
                     elif act == "registr(password)":
-                        user.editProfile(author, "password", text)
-                        self.send_msg("Регистрация завершена", author, "main")
-                        logs.newUser(author)
-                        user.getProfile(author)["act"] = "main"
+                        test = User.cheakPassword(ltext)
+                        if test == -1:
+                            self.send_msg("Введённый вами пароль слишком маленький(минимум 7 символов), попробуйте другой", author, None)
+                        elif test == -2:
+                            self.send_msg("Введённый вами пароль не содержит заглавные буквы, попробуйте другой", author, None)
+                        elif test == -3:
+                            self.send_msg("Введённый вами пароль не содержит строчные буквы, попробуйте другой", author, None)
+                        elif test == -4:
+                            self.send_msg("Введённый вами пароль не содержит цыфры, попробуйте другой", author, None)
+                        elif test == -5:
+                            self.send_msg("Введённый вами пароль содержит пробелы, попробуйте другой", author, None)
+                        elif test == 1:
+                            user.editProfile(author, "password", text)
+                            self.send_msg("Регистрация завершена", author, "main")
+                            logs.newUser(author)
+                            user.getProfile(author)["act"] = "main"
                     elif text == "профиль" and act == "main":
                         people = user.getProfile(author)
                         self.send_msg(f"Ваш аккаунт:\nid - {people['id']}\nлогин - {people['name']}\

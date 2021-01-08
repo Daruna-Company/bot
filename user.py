@@ -1,4 +1,5 @@
 import database as db
+import re
 
 class User:
     numOfUsers = 1
@@ -35,3 +36,18 @@ class User:
             return True
         else:
             return False
+
+    @staticmethod
+    def cheakPassword(password):
+        if len(password) < 7:
+            return -1
+        elif password.lower() == password:
+            return -2
+        elif password.upper() == password:
+            return -3
+        elif re.search("\d+", password) is None:
+            return -4
+        elif " " in password:
+            return -5
+        else:
+            return 1
