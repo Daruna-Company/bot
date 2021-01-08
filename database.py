@@ -1,1 +1,4 @@
-users = []
+data = {
+    "users": [],
+    "logins": []
+}

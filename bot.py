@@ -6,6 +6,7 @@ from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 
 from config import info
 from user import User
+import database as db
 import logs
 
 class Bot:
@@ -15,6 +16,10 @@ class Bot:
 
         self.main = VkKeyboard(one_time=True)
         self.main.add_button("Профиль")
+
+        self.profile = VkKeyboard(one_time=True)
+        self.profile.add_button("изменить логин")
+        self.profile.add_button("изменить пароль")
 
         self.token = i["token"]
         self.group_id = i["group_id"]
@@ -42,6 +47,8 @@ class Bot:
     def send_msg(self, text, peer, key):
         if key == "main":
             key = self.main.get_keyboard()
+        elif key == "profile":
+            key = self.profile.get_keyboard()
         else:
             key = None
         self.vk.messages.send(
@@ -55,6 +62,7 @@ class Bot:
         user = User()
         for event in self.longpoll.listen():
             if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+                ltext = event.text
                 text = event.text.lower()
                 author = event.user_id
                 if text.lower() == "начать":
@@ -72,9 +80,19 @@ class Bot:
                         user.getProfile(author)["act"] = "registr(login)"
                 else:
                     if act == "registr(login)":
-                        user.editProfile(author, "name", text)
-                        self.send_msg("Введите пароль для вашего аккаунта", author, None)
-                        user.getProfile(author)["act"] = "registr(password)"
+                        if ltext in db.data["logins"]:
+                            self.send_msg("Введённый вами логин уже используется, попробуйте другой", author, None)
+                        elif len(ltext) <= 7:
+                            self.send_msg("Введённый вами логин слишком короткий(необходимо хотя бы 7 символов),\
+ попробуйте другой", author, None)
+                        elif len(ltext) >= 30:
+                            self.send_msg("Введённый вами логин слишком длинный(необходимо не больше 30 символов),\
+ попробуйте другой", author, None)
+                        else:
+                            user.editProfile(author, "name", text)
+                            db.data["logins"].append(ltext)
+                            self.send_msg("Введите пароль для вашего аккаунта", author, None)
+                            user.getProfile(author)["act"] = "registr(password)"
                     elif act == "registr(password)":
                         user.editProfile(author, "password", text)
                         self.send_msg("Регистрация завершена", author, "main")
@@ -83,7 +101,8 @@ class Bot:
                     elif text == "профиль" and act == "main":
                         people = user.getProfile(author)
                         self.send_msg(f"Ваш аккаунт:\nid - {people['id']}\nлогин - {people['name']}\
-\nроль - {people['role']}", author, "main")
+\nроль - {people['role']}", author, "profile")
+                    #elif text == ""
                     else:
                         break
 

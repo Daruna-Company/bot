@@ -4,13 +4,13 @@ class User:
     numOfUsers = 1
 
     def getProfile(self, id):
-        for i in db.users:
+        for i in db.data["users"]:
             if i["contacts"]["vk"] == id:
                 return i
 
     def createProfile(self, vk_id):
         id = self.numOfUsers
-        db.users.append({
+        db.data["users"].append({
             "name": "",
             "password": "",
             "id": id,
@@ -21,6 +21,7 @@ class User:
             },
             "orders": [],
             "role": "простой пользователь",
+            "moder": False,
             "act": "none"
         })
         self.numOfUsers += 1
@@ -34,12 +35,3 @@ class User:
             return True
         else:
             return False
-
-if __name__ == "__main__":
-    x = User()
-    print(x.numOfUsers)
-    x.createProfile(1647674)
-    print(x.numOfUsers)
-    print(db.users)
-    x.editProfile(1647674, "name", "Voiderss")
-    print(db.users)
